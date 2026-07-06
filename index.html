@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bazsishop – Premium Resell</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0A0A0A; --card: #141414; --surface: #1E1E1E;
+      --border: #2A2A2A; --orange: #FF6B00; --orange-dim: #cc5500;
+      --white: #F2F0EB; --muted: #888;
+      --font-display: 'Bebas Neue', sans-serif; --font-body: 'Inter', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--white); font-family: var(--font-body); overflow-x: hidden; }
+
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 64px; background: rgba(10,10,10,0.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: var(--font-display); font-size: 1.8rem; color: var(--white); text-decoration: none; }
+    .nav-logo span { color: var(--orange); }
+    .nav-links { display: flex; gap: 1.6rem; list-style: none; }
+    .nav-links a { color: var(--muted); font-size: 0.78rem; font-weight: 500; text-decoration: none; text-transform: uppercase; letter-spacing: 0.08em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-actions { display: flex; align-items: center; gap: 1rem; }
+    .live-badge { display: flex; align-items: center; gap: 0.4rem; background: #1a0800; border: 1px solid var(--orange); color: var(--orange); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.3rem 0.7rem; border-radius: 2px; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+    .nav-cart { position: relative; background: var(--orange); border: none; cursor: pointer; color: var(--black); font-family: var(--font-body); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.5rem 1.2rem; border-radius: 2px; transition: background 0.2s; }
+    .nav-cart:hover { background: var(--orange-dim); }
+    .cart-count { position: absolute; top: -6px; right: -6px; background: var(--white); color: var(--black); font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    /* HERO */
+    .hero { min-height: 88vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 5rem 3rem 4rem; gap: 4rem; position: relative; overflow: hidden; }
+    .hero::after { content:''; position:absolute; top:-30%; right:-5%; width:600px; height:600px; border-radius:50%; background:radial-gradient(circle,rgba(255,107,0,0.09) 0%,transparent 70%); pointer-events:none; }
+    .hero-text { position: relative; z-index:1; }
+    .hero-eyebrow { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: var(--orange); margin-bottom: 1.2rem; }
+    .hero-title { font-family: var(--font-display); font-size: clamp(3.5rem,7vw,6rem); line-height: 0.92; margin-bottom: 1.5rem; }
+    .hero-title em { color: var(--orange); font-style: normal; }
+    .hero-desc { color: var(--muted); font-size: 1rem; max-width: 420px; margin-bottom: 2.5rem; line-height: 1.7; }
+    .hero-cta { display: inline-flex; align-items: center; gap: 0.6rem; background: var(--orange); color: var(--black); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 1rem 2rem; border: none; cursor: pointer; text-decoration: none; border-radius: 2px; transition: background 0.2s, transform 0.15s; }
+    .hero-cta:hover { background: var(--orange-dim); transform: translateY(-1px); }
+    .hero-stats { display: flex; gap: 2.5rem; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+    .stat-val { font-family: var(--font-display); font-size: 2rem; }
+    .stat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .hero-img { width: 100%; max-width: 480px; aspect-ratio: 4/5; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); }
+
+    /* TICKER */
+    .ticker-wrap { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: 0.6rem 0; }
+    .ticker-track { display: flex; white-space: nowrap; animation: ticker 38s linear infinite; }
+    .ticker-item { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0 2rem; font-size: 0.78rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* SECTIONS */
+    section { padding: 5rem 2.5rem; }
+    .section-alt { background: var(--surface); }
+    .section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2.5rem; }
+    .section-eyebrow { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.4rem; }
+    .section-title { font-family: var(--font-display); font-size: clamp(1.8rem,3.5vw,2.8rem); letter-spacing: 0.04em; }
+    .section-title span { color: var(--orange); }
+    .see-all { color: var(--orange); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; border-bottom: 1px solid var(--orange); padding-bottom: 1px; transition: opacity 0.2s; white-space: nowrap; }
+    .see-all:hover { opacity: 0.7; }
+
+    /* FLASH */
+    .flash-header { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .flash-title { font-family: var(--font-display); font-size: 2.5rem; }
+    .countdown { display: flex; gap: 0.4rem; align-items: center; }
+    .cd-block { background: var(--black); border: 1px solid var(--border); padding: 0.45rem 0.75rem; text-align: center; border-radius: 2px; min-width: 50px; }
+    .cd-val { font-family: var(--font-display); font-size: 1.5rem; color: var(--orange); display: block; line-height: 1; }
+    .cd-lbl { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .cd-sep { font-family: var(--font-display); font-size: 1.4rem; color: var(--orange); padding-bottom: 4px; }
+
+    /* PRODUCT GRID */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; }
+    .product-grid-wide { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; cursor: pointer; transition: border-color 0.2s, transform 0.2s; position: relative; }
+    .product-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+    .product-img { aspect-ratio: 1/1; width: 100%; object-fit: cover; display: block; background: var(--surface); }
+    .product-badge { position: absolute; top: 0.75rem; left: 0.75rem; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.22rem 0.55rem; border-radius: 2px; }
+    .badge-hot { background: var(--orange); color: var(--black); }
+    .badge-new { background: var(--white); color: var(--black); }
+    .badge-limited { background: #7c3aed; color: #fff; }
+    .badge-set { background: #0ea5e9; color: #fff; }
+    .product-body { padding: 1rem; }
+    .product-brand { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.25rem; }
+    .product-name { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.6rem; line-height: 1.3; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; }
+    .product-price { font-family: var(--font-display); font-size: 1.4rem; color: var(--orange); }
+    .product-retail { font-size: 0.7rem; color: var(--muted); }
+    .product-retail s { text-decoration: line-through; }
+    .btn-add { background: var(--surface); border: 1px solid var(--border); color: var(--white); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.42rem 0.8rem; border-radius: 2px; cursor: pointer; transition: background 0.2s, border-color 0.2s; flex-shrink: 0; }
+    .btn-add:hover { background: var(--orange); border-color: var(--orange); color: var(--black); }
+
+    /* TRUST */
+    .trust-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+    .trust-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 1.8rem 1.2rem; text-align: center; }
+    .trust-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+    .trust-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .trust-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+    /* NEWSLETTER */
+    .newsletter { background: linear-gradient(135deg, var(--surface), var(--card)); border: 1px solid var(--border); border-radius: 4px; padding: 4rem 2rem; text-align: center; margin: 0 2.5rem 5rem; }
+    .newsletter-title { font-family: var(--font-display); font-size: clamp(1.8rem,4vw,2.8rem); margin-bottom: 0.5rem; }
+    .newsletter-title span { color: var(--orange); }
+    .newsletter-sub { color: var(--muted); margin-bottom: 2rem; font-size: 0.9rem; }
+    .newsletter-form { display: flex; gap: 0.6rem; max-width: 440px; margin: 0 auto; }
+    .newsletter-input { flex:1; background: var(--black); border: 1px solid var(--border); color: var(--white); font-family: var(--font-body); font-size: 0.9rem; padding: 0.85rem 1rem; border-radius: 2px; outline: none; transition: border-color 0.2s; }
+    .newsletter-input::placeholder { color: var(--muted); }
+    .newsletter-input:focus { border-color: var(--orange); }
+    .newsletter-btn { background: var(--orange); color: var(--black); border: none; cursor: pointer; font-family: var(--font-body); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.85rem 1.5rem; border-radius: 2px; transition: background 0.2s; }
+    .newsletter-btn:hover { background: var(--orange-dim); }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 3rem 2.5rem 2rem; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+    .footer-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.7; max-width: 240px; margin-top: 0.6rem; }
+    .footer-col h4 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-col a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--white); }
+    .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 2rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); }
+
+    /* CART */
+    .cart-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.75); z-index:200; opacity:0; pointer-events:none; transition: opacity 0.3s; }
+    .cart-overlay.open { opacity:1; pointer-events:all; }
+    .cart-panel { position: fixed; right:0; top:0; bottom:0; width:380px; background: var(--card); border-left: 1px solid var(--border); z-index:201; display:flex; flex-direction:column; transform:translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+    .cart-panel.open { transform:translateX(0); }
+    .cart-head { display:flex; align-items:center; justify-content:space-between; padding:1.5rem; border-bottom: 1px solid var(--border); }
+    .cart-head h2 { font-family: var(--font-display); font-size:1.5rem; }
+    .cart-close { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.4rem; line-height:1; transition: color 0.2s; }
+    .cart-close:hover { color: var(--white); }
+    .cart-items { flex:1; overflow-y:auto; padding:1.2rem; display:flex; flex-direction:column; gap:1rem; }
+    .cart-item { display:flex; gap:1rem; align-items:center; background: var(--surface); border: 1px solid var(--border); border-radius:4px; padding:0.9rem; }
+    .cart-item-img { width:56px; height:56px; object-fit:cover; border-radius:3px; flex-shrink:0; }
+    .cart-item-info { flex:1; min-width:0; }
+    .cart-item-name { font-size:0.82rem; font-weight:600; margin-bottom:0.2rem; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .cart-item-price { font-family: var(--font-display); color: var(--orange); font-size:1.1rem; }
+    .cart-item-remove { background:none; border:none; color: var(--muted); cursor:pointer; font-size:1rem; transition: color 0.2s; flex-shrink:0; }
+    .cart-item-remove:hover { color: var(--white); }
+    .cart-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.8rem; color:var(--muted); }
+    .cart-empty-icon { font-size:3rem; }
+    .cart-footer { padding:1.2rem; border-top: 1px solid var(--border); }
+    .cart-total { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+    .cart-total-label { font-size:0.85rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; }
+    .cart-total-val { font-family: var(--font-display); font-size:1.8rem; color: var(--orange); }
+    .btn-checkout { width:100%; background: var(--orange); color: var(--black); border:none; cursor:pointer; font-family: var(--font-body); font-weight:700; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.1em; padding:1rem; border-radius:2px; transition: background 0.2s; }
+    .btn-checkout:hover { background: var(--orange-dim); }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(100px); background: var(--surface); border: 1px solid var(--orange); color: var(--white); font-size:0.85rem; font-weight:500; padding:0.9rem 1.6rem; border-radius:4px; z-index:300; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); white-space:nowrap; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width:1024px) { .trust-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width:900px) { .hero { grid-template-columns:1fr; min-height:auto; padding:3rem 1.5rem; } .hero > div:last-child { display:none; } .footer-grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:600px) { nav { padding:0 1rem; } .nav-links { display:none; } section { padding:3rem 1rem; } .newsletter { margin:0 1rem 3rem; } .newsletter-form { flex-direction:column; } .cart-panel { width:100%; } .footer-grid { grid-template-columns:1fr; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#"><span>BAZSI</span>SHOP</a>
+  <ul class="nav-links">
+    <li><a href="#sneakers">Sneakers</a></li>
+    <li><a href="#ruhazat">Ruházat</a></li>
+    <li><a href="#orak">Órák</a></li>
+    <li><a href="#kiegeszitok">Kiegészítők</a></li>
+    <li><a href="#flash">Flash Sale</a></li>
+  </ul>
+  <div class="nav-actions">
+    <div class="live-badge"><span class="live-dot"></span>Live</div>
+    <button onclick="openAdminLogin()" style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);background:none;text-decoration:none;padding:0.4rem 0.75rem;border:1px solid var(--border);border-radius:3px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⚙ Admin</button>
+    <button class="nav-cart" id="openCart">🛒 Kosár <span class="cart-count" id="cartCount">0</span></button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-text">
+    <p class="hero-eyebrow">🔥 Prémium Resell – Magyarország</p>
+    <h1 class="hero-title">AUTENTIKUS<br><em>SNEAKERS</em><br>& STREETWEAR</h1>
+    <p class="hero-desc">Válogatott limited edition cipők, ruhák és kiegészítők – 100%-os garancia, gyors szállítás. Nálunk mindig van mit találni.</p>
+    <a href="#sneakers" class="hero-cta">Nézd meg a kínálatot →</a>
+    <div class="hero-stats">
+      <div><div class="stat-val">100+</div><div class="stat-label">Eladott darab</div></div>
+      <div><div class="stat-val">100%</div><div class="stat-label">Autentikus</div></div>
+      <div><div class="stat-val">20 nap</div><div class="stat-label">Szállítás</div></div>
+    </div>
+  </div>
+  <div>
+   
+  </div>
+</section>
+
+<div class="ticker-wrap"><div class="ticker-track" id="ticker"></div></div>
+
+<!-- FLASH SALE -->
+<section class="section-alt" id="flash">
+  <div class="flash-header">
+    <h2 class="flash-title">⚡ FLASH SALE</h2>
+    <div class="countdown">
+      <div class="cd-block"><span class="cd-val" id="cd-h">00</span><span class="cd-lbl">óra</span></div>
+      <span class="cd-sep">:</span>
+      <div class="cd-block"><span class="cd-val" id="cd-m">00</span><span class="cd-lbl">perc</span></div>
+      <span class="cd-sep">:</span>
+      <div class="cd-block"><span class="cd-val" id="cd-s">00</span><span class="cd-lbl">mp</span></div>
+    </div>
+  </div>
+  <div class="product-grid" id="flashGrid"></div>
+</section>
+
+<!-- SNEAKERS -->
+<section id="sneakers">
+  <div class="section-header">
+    <div><div class="section-eyebrow">Cipők</div><h2 class="section-title">SNEAKERS</h2></div>
+    <a href="#" class="see-all">Összes →</a>
+  </div>
+  <div class="product-grid" id="sneakersGrid"></div>
+</section>
+
+<!-- RUHAZAT -->
+<section class="section-alt" id="ruhazat">
+  <div class="section-header">
+    <div><div class="section-eyebrow">Felsők, alsók, szettek</div><h2 class="section-title">RUHÁZAT</h2></div>
+    <a href="#" class="see-all">Összes →</a>
+  </div>
+  <div class="product-grid" id="ruhazatGrid"></div>
+</section>
+
+<!-- ORAK -->
+<section id="orak">
+  <div class="section-header">
+    <div><div class="section-eyebrow">Luxus időmérők</div><h2 class="section-title">ÓRÁK</h2></div>
+    <a href="#" class="see-all">Összes →</a>
+  </div>
+  <div class="product-grid product-grid-wide" id="orakGrid"></div>
+</section>
+
+<!-- KIEGESZITOK -->
+<section class="section-alt" id="kiegeszitok">
+  <div class="section-header">
+    <div><div class="section-eyebrow">Övek, tárcák, tech</div><h2 class="section-title">KIEGÉSZÍTŐK</h2></div>
+    <a href="#" class="see-all">Összes →</a>
+  </div>
+  <div class="product-grid" id="kiegGrid"></div>
+</section>
+
+<!-- TRUST -->
+<section>
+  <div class="section-header">
+    <div><div class="section-eyebrow">Miért minket?</div><h2 class="section-title">GARANCIA & <span>BIZALOM</span></h2></div>
+  </div>
+  <div class="trust-grid">
+    <div class="trust-card"><div class="trust-icon">✅</div><div class="trust-title">100% Autentikus</div><div class="trust-desc">Minden terméket szakértőink ellenőriznek. Fake esetén visszafizetjük.</div></div>
+    <div class="trust-card"><div class="trust-icon">🚀</div><div class="trust-title">Gyors szállítás</div><div class="trust-desc">20 munkanapon belül futárral az ajtódhoz.</div></div>
+    <div class="trust-card"><div class="trust-icon">🔄</div><div class="trust-title">14 napos csere</div><div class="trust-desc">Nem megfelelő? Problémamentesen visszaküldheted.</div></div>
+    <div class="trust-card"><div class="trust-icon">💬</div><div class="trust-title">Ügyfélszolgálat</div><div class="trust-desc">Naponta elérhető chat és e-mail ügyfélszolgálat.</div></div>
+  </div>
+</section>
+
+<div class="newsletter">
+  <h2 class="newsletter-title">LÉGY AZ <span>ELSŐ</span></h2>
+  <p class="newsletter-sub">Értesülj elsőként az új érkezőkről és exkluzív ajánlatokról.</p>
+  <div class="newsletter-form">
+    <input class="newsletter-input" type="email" placeholder="email@example.com" />
+    <button class="newsletter-btn" onclick="showToast('📧 Sikeresen feliratkoztál!')">Feliratkozom</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <a class="nav-logo" href="#"><span style="color:var(--orange)">BAZSI</span>SHOP</a>
+      <p class="footer-desc">Magyarország legjobb resell shopja – autentikus sneakers és streetwear, gyorsan és megbízhatóan.</p>
+    </div>
+    <div class="footer-col"><h4>Shop</h4><ul><li><a href="#">Sneakers</a></li><li><a href="#">Ruházat</a></li><li><a href="#">Órák</a></li><li><a href="#">Kiegészítők</a></li></ul></div>
+    <div class="footer-col"><h4>Info</h4><ul><li><a href="#">Rólunk</a></li><li><a href="#">Autentikáció</a></li><li><a href="#">Szállítás</a></li><li><a href="#">ÁSZF</a></li></ul></div>
+    <div class="footer-col"><h4>Kapcsolat</h4><ul><li><a href="#">info@bazsishop.hu</a></li><li><a href="#">Instagram</a></li><li><a href="#">TikTok</a></li><li><a href="#">Facebook</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span>Iskolai Project</span><span></span></div>
+</footer>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-head"><h2>KOSÁR</h2><button class="cart-close" onclick="closeCart()">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-total"><span class="cart-total-label">Összesen</span><span class="cart-total-val" id="cartTotal">0 Ft</span></div>
+    <button class="btn-checkout" onclick="showToast('🛒 Hamarosan elérhető a fizetés!')">Megrendelés →</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyDnZrZ29HzbBY_KLQUf0z3KKWlNLGepxQo",
+  authDomain: "bazsishop-3e9de.firebaseapp.com",
+  projectId: "bazsishop-3e9de",
+  storageBucket: "bazsishop-3e9de.firebasestorage.app",
+  messagingSenderId: "253425959441",
+  appId: "1:253425959441:web:daf90a0dfca0c2ddae67b0"
+});
+const db = firebase.firestore();
+
+const P = {
+  flash: [],
+  sneakers: [],
+  ruhazat: [],
+  orak: [],
+  kiegeszitok: [],
+};
+
+const cart = [];
+const allP = Object.values(P).flat();
+function fmt(n){ return n.toLocaleString('hu-HU')+' Ft'; }
+const bMap = {hot:'badge-hot',new:'badge-new',limited:'badge-limited',set:'badge-set'};
+const bLbl = {hot:'🔥 HOT',new:'✨ ÚJ',limited:'🔒 LIMITED',set:'📦 SZETT'};
+
+function card(p){
+  return `<div class="product-card" onclick="addToCart('${p.id}')">
+    <img class="product-img" src="${p.img}" alt="${p.name}" loading="lazy"/>
+    ${p.badge?`<span class="product-badge ${bMap[p.badge]}">${bLbl[p.badge]}</span>`:''}
+    <div class="product-body">
+      <div class="product-brand">${p.brand}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-footer">
+        <div>
+          <div class="product-price">${fmt(p.price)}</div>
+          <div class="product-retail">Retail: <s>${fmt(p.retail)}</s></div>
+        </div>
+        <button class="btn-add" onclick="event.stopPropagation();addToCart('${p.id}')">+ Kosár</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Firebase – termékek betöltése valós időben ──
+function renderAllGrids(){
+  db.collection('products').orderBy('createdAt','desc').get().then(snap => {
+    const custom = snap.docs.map(d => ({...d.data(), id: d.id, _id: d.id}));
+    const merged = {
+      flash: [...P.flash], sneakers: [...P.sneakers],
+      ruhazat: [...P.ruhazat], orak: [...P.orak], kiegeszitok: [...P.kiegeszitok],
+    };
+    custom.forEach(p => { if(merged[p.cat]) merged[p.cat].unshift(p); });
+    document.getElementById('flashGrid').innerHTML    = merged.flash.map(card).join('');
+    document.getElementById('sneakersGrid').innerHTML = merged.sneakers.map(card).join('');
+    document.getElementById('ruhazatGrid').innerHTML  = merged.ruhazat.map(card).join('');
+    document.getElementById('orakGrid').innerHTML     = merged.orak.map(card).join('');
+    document.getElementById('kiegGrid').innerHTML     = merged.kiegeszitok.map(card).join('');
+    allP.length = 0;
+    allP.push(...Object.values(merged).flat());
+  }).catch(e => console.error('Firebase hiba:', e));
+}
+
+renderAllGrids();
+
+// ── Valós idejű frissítés – automatikus újratöltés termékváltozáskor ──
+db.collection('products').onSnapshot(() => renderAllGrids());
+
+// ── Ugyanazon eszközön (admin tab → webshop tab) ──
+try {
+  const bc = new BroadcastChannel('bazsi_products');
+  bc.onmessage = () => renderAllGrids();
+} catch(e){}
+
+function addToCart(id){
+  const p = allP.find(x=>String(x.id)===String(id));
+  const ex = cart.find(x=>String(x.id)===String(id));
+  if(ex) ex.qty++; else cart.push({...p,qty:1});
+  renderCart();
+  showToast('✅ Kosárba rakva: '+p.name.split(' ').slice(0,3).join(' '));
+}
+function removeFromCart(id){ const i=cart.findIndex(x=>String(x.id)===String(id)); if(i>-1) cart.splice(i,1); renderCart(); }
+function renderCart(){
+  document.getElementById('cartCount').textContent = cart.reduce((s,x)=>s+x.qty,0);
+  if(!cart.length){
+    document.getElementById('cartItems').innerHTML='<div class="cart-empty"><div class="cart-empty-icon">🛒</div><span>A kosarad üres</span></div>';
+    document.getElementById('cartFooter').style.display='none';
+  } else {
+    document.getElementById('cartItems').innerHTML=cart.map(p=>`
+      <div class="cart-item">
+        <img class="cart-item-img" src="${p.img}" alt="${p.name}"/>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-price">${fmt(p.price)} × ${p.qty}</div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart('${p.id}')">✕</button>
+      </div>`).join('');
+    document.getElementById('cartTotal').textContent=fmt(cart.reduce((s,x)=>s+x.price*x.qty,0));
+    document.getElementById('cartFooter').style.display='block';
+  }
+}
+renderCart();
+function openCart(){ document.getElementById('cartPanel').classList.add('open'); document.getElementById('cartOverlay').classList.add('open'); }
+function closeCart(){ document.getElementById('cartPanel').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('open'); }
+document.getElementById('openCart').onclick=openCart;
+
+// Ticker
+const tItems=['👟 Jordan 4 Pink – csak 4 db maradt','🔥 Cactus Jack Hoodie – LIMITED','⌚ Rolex Datejust – Eredeti dobozzal','💼 Gucci Szett – 5 féle kivitel','✅ 100+ elégedett vásárló','🚀 1–3 napos kiszállítás egész Magyarországon','👕 Off-White Tee – Friss raktár','🎽 Ralph Lauren City Polo – 9 városban'];
+const html=[...tItems,...tItems].map(t=>`<span class="ticker-item">${t} &nbsp;·&nbsp; </span>`).join('');
+document.getElementById('ticker').innerHTML=html+html;
+
+// Countdown
+(function(){
+  const end=new Date(); end.setHours(23,59,59,999);
+  function tick(){
+    const d=end-Date.now(); if(d<0)return;
+    document.getElementById('cd-h').textContent=String(Math.floor(d/3600000)).padStart(2,'0');
+    document.getElementById('cd-m').textContent=String(Math.floor(d%3600000/60000)).padStart(2,'0');
+    document.getElementById('cd-s').textContent=String(Math.floor(d%60000/1000)).padStart(2,'0');
+  }
+  tick(); setInterval(tick,1000);
+})();
+
+let tt;
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2600); }
+
+// Firebase compat - no window exports needed
+</script>
+<!-- ADMIN LOGIN MODAL -->
+<style>
+  .admin-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+  .admin-modal-overlay.open{display:flex}
+  .admin-modal-box{background:#141414;border:1px solid #2A2A2A;border-radius:8px;padding:2.5rem 2rem;width:100%;max-width:340px;position:relative}
+  .admin-modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer;line-height:1}
+  .admin-modal-close:hover{color:#F2F0EB}
+  .admin-modal-logo{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;text-align:center;margin-bottom:0.2rem}
+  .admin-modal-logo span{color:#FF6B00}
+  .admin-modal-sub{text-align:center;font-size:0.75rem;color:#888;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:1.8rem}
+  .admin-modal-label{display:block;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#888;margin-bottom:0.35rem}
+  .admin-modal-input{width:100%;background:#1E1E1E;border:1px solid #2A2A2A;color:#F2F0EB;font-family:'Inter',sans-serif;font-size:0.9rem;padding:0.7rem 1rem;border-radius:4px;outline:none;margin-bottom:1rem;transition:border-color 0.2s}
+  .admin-modal-input:focus{border-color:#FF6B00}
+  .admin-modal-input::placeholder{color:#888}
+  .admin-modal-btn{width:100%;background:#FF6B00;color:#0A0A0A;border:none;font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.1em;padding:0.85rem;border-radius:4px;transition:background 0.2s;margin-top:0.25rem}
+  .admin-modal-btn:hover{background:#cc5500}
+  .admin-modal-error{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:0.78rem;padding:0.55rem 0.8rem;border-radius:4px;margin-bottom:0.9rem;text-align:center}
+  .admin-modal-error.show{display:block}
+</style>
+
+<div class="admin-modal-overlay" id="adminLoginModal" onclick="if(event.target===this)closeAdminLogin()">
+  <div class="admin-modal-box">
+    <button class="admin-modal-close" onclick="closeAdminLogin()">✕</button>
+    <div class="admin-modal-logo"><span>BAZSI</span>SHOP</div>
+    <div class="admin-modal-sub">Admin Bejelentkezés</div>
+    <div class="admin-modal-error" id="adminLoginError">❌ Hibás felhasználónév vagy jelszó!</div>
+    <label class="admin-modal-label">Felhasználónév</label>
+    <input class="admin-modal-input" type="text" id="adminModalUser" placeholder="admin" autocomplete="username"/>
+    <label class="admin-modal-label">Jelszó</label>
+    <input class="admin-modal-input" type="password" id="adminModalPass" placeholder="••••••••" autocomplete="current-password"/>
+    <button class="admin-modal-btn" onclick="doAdminLogin()">Belépés →</button>
+  </div>
+</div>
+
+<script>
+function openAdminLogin(){
+  document.getElementById('adminLoginModal').classList.add('open');
+  setTimeout(()=>document.getElementById('adminModalUser').focus(),100);
+}
+function closeAdminLogin(){
+  document.getElementById('adminLoginModal').classList.remove('open');
+  document.getElementById('adminLoginError').classList.remove('show');
+  document.getElementById('adminModalPass').value='';
+}
+function doAdminLogin(){
+  const u = document.getElementById('adminModalUser').value.trim();
+  const p = document.getElementById('adminModalPass').value;
+  const stored = localStorage.getItem('bazsi_admins');
+  const admins = stored ? JSON.parse(stored) : [{user:'admin',pass:'admin123',role:'Superadmin'}];
+  // Ha még nem volt elmentve, mentsük el most
+  if(!stored) localStorage.setItem('bazsi_admins', JSON.stringify(admins));
+  const found = admins.find(a=>a.user===u && a.pass===p);
+  if(found){
+    localStorage.setItem('bazsi_session', JSON.stringify({user:found.user, role:found.role}));
+    window.location.href = 'admin.html';
+  } else {
+    document.getElementById('adminLoginError').classList.add('show');
+    document.getElementById('adminModalPass').value='';
+  }
+}
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeAdminLogin();
+  if(e.key==='Enter' && document.getElementById('adminLoginModal').classList.contains('open')) doAdminLogin();
+});
+</script>
+
+</body>
+</html>

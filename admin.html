@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bazsishop Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --black:#0A0A0A;--card:#141414;--surface:#1E1E1E;--border:#2A2A2A;
+      --orange:#FF6B00;--orange-dim:#cc5500;--white:#F2F0EB;--muted:#888;
+      --green:#22c55e;--red:#ef4444;--blue:#3b82f6;
+      --font-display:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;
+    }
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);min-height:100vh}
+
+    /* LOGIN */
+    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 20%,rgba(255,107,0,0.07) 0%,transparent 60%)}
+    .login-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:2.5rem 2rem;width:100%;max-width:360px}
+    .login-logo{font-family:var(--font-display);font-size:2rem;text-align:center;margin-bottom:0.3rem}
+    .login-logo span{color:var(--orange)}
+    .login-sub{text-align:center;font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:2rem}
+    .login-label{display:block;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.4rem}
+    .login-input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--white);font-family:var(--font-body);font-size:0.9rem;padding:0.75rem 1rem;border-radius:4px;outline:none;margin-bottom:1rem;transition:border-color 0.2s}
+    .login-input:focus{border-color:var(--orange)}
+    .login-input::placeholder{color:var(--muted)}
+    .login-btn{width:100%;background:var(--orange);color:var(--black);border:none;font-family:var(--font-body);font-size:0.85rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.1em;padding:0.9rem;border-radius:4px;transition:background 0.2s;margin-top:0.5rem}
+    .login-btn:hover{background:var(--orange-dim)}
+    .login-error{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:0.8rem;padding:0.6rem 0.9rem;border-radius:4px;margin-bottom:1rem;text-align:center}
+    .login-error.show{display:block}
+    .back-link{display:block;text-align:center;margin-top:1.2rem;font-size:0.75rem;color:var(--muted);text-decoration:none;transition:color 0.2s}
+    .back-link:hover{color:var(--white)}
+
+    /* SHELL */
+    .admin-shell{display:none;min-height:100vh;flex-direction:column}
+    .admin-shell.active{display:flex}
+
+    /* TOPBAR */
+    .topbar{height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;flex-shrink:0}
+    .topbar-logo{font-family:var(--font-display);font-size:1.5rem}
+    .topbar-logo span{color:var(--orange)}
+    .topbar-right{display:flex;align-items:center;gap:1rem}
+    .topbar-user{font-size:0.78rem;color:var(--muted)}
+    .logout-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:var(--font-body);font-size:0.75rem;padding:0.3rem 0.8rem;border-radius:3px;cursor:pointer;transition:all 0.2s}
+    .logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+    /* LAYOUT */
+    .admin-body{display:flex;flex:1;overflow:hidden}
+    .sidebar{width:220px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1rem 0;flex-shrink:0}
+    .nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.25rem;font-size:0.8rem;font-weight:500;color:var(--muted);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;user-select:none}
+    .nav-item:hover{background:rgba(255,107,0,0.05);color:var(--white)}
+    .nav-item.active{color:var(--orange);background:rgba(255,107,0,0.08);border-left-color:var(--orange)}
+    .nav-icon{font-size:1rem;width:20px;text-align:center}
+    .nav-badge{margin-left:auto;background:var(--orange);color:var(--black);font-size:0.62rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:10px}
+    .main-content{flex:1;overflow-y:auto;padding:1.5rem}
+
+    /* PANELS */
+    .panel{display:none}
+    .panel.active{display:block}
+
+    /* CARDS */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1.5rem;margin-bottom:1.5rem}
+    .card-title{font-family:var(--font-display);font-size:1.1rem;letter-spacing:0.05em;margin-bottom:1.2rem;color:var(--muted)}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1.2rem}
+    .stat-num{font-family:var(--font-display);font-size:2.2rem;color:var(--orange)}
+    .stat-lbl{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.2rem}
+
+    /* FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .form-group{margin-bottom:1rem}
+    .form-label{display:block;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.4rem}
+    .form-label span{color:var(--red)}
+    .form-input,.form-select,.form-textarea{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--white);font-family:var(--font-body);font-size:0.88rem;padding:0.7rem 0.9rem;border-radius:4px;outline:none;transition:border-color 0.2s}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--orange)}
+    .form-input::placeholder,.form-textarea::placeholder{color:var(--muted)}
+    .form-select option{background:var(--surface)}
+    .form-textarea{resize:vertical;min-height:80px}
+
+    /* IMAGE UPLOAD */
+    .upload-area{border:2px dashed var(--border);border-radius:6px;padding:2.5rem 1rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:1rem}
+    .upload-area:hover,.upload-area.drag{border-color:var(--orange);background:rgba(255,107,0,0.04)}
+    .upload-area-icon{font-size:2.5rem;margin-bottom:0.5rem}
+    .upload-area-text{font-size:0.85rem;color:var(--muted);margin-bottom:1rem}
+    .upload-area-btn{display:inline-block;background:var(--orange);color:var(--black);border:none;font-family:var(--font-body);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.55rem 1.4rem;border-radius:3px;cursor:pointer;transition:background 0.2s}
+    .upload-area-btn:hover{background:var(--orange-dim)}
+    .img-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:0.6rem;margin-top:0.8rem}
+    .img-thumb{position:relative;aspect-ratio:1/1;border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+    .img-thumb img{width:100%;height:100%;object-fit:cover}
+    .img-thumb-remove{position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.7);border:none;color:#fff;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;line-height:1}
+    .img-thumb-main{position:absolute;bottom:3px;left:3px;background:var(--orange);color:var(--black);font-size:0.55rem;font-weight:700;padding:0.1rem 0.3rem;border-radius:2px;text-transform:uppercase}
+
+    /* BUTTONS */
+    .btn-primary{background:var(--orange);color:var(--black);border:none;font-family:var(--font-body);font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.75rem 1.5rem;border-radius:4px;cursor:pointer;transition:background 0.2s}
+    .btn-primary:hover{background:var(--orange-dim)}
+    .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+    .btn-secondary{background:var(--surface);color:var(--white);border:1px solid var(--border);font-family:var(--font-body);font-size:0.82rem;font-weight:600;padding:0.75rem 1.5rem;border-radius:4px;cursor:pointer;transition:all 0.2s}
+    .btn-secondary:hover{border-color:var(--orange);color:var(--orange)}
+    .btn-danger{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.3);font-family:var(--font-body);font-size:0.78rem;font-weight:600;padding:0.4rem 0.8rem;border-radius:3px;cursor:pointer;transition:all 0.2s}
+    .btn-danger:hover{background:var(--red);color:#fff}
+    .btn-edit{background:var(--surface);color:var(--white);border:1px solid var(--border);font-family:var(--font-body);font-size:0.78rem;font-weight:600;padding:0.4rem 0.8rem;border-radius:3px;cursor:pointer;transition:all 0.2s}
+    .btn-edit:hover{border-color:var(--orange);color:var(--orange)}
+
+    /* TABLE */
+    .product-table{width:100%;border-collapse:collapse}
+    .product-table th{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);text-align:left;padding:0.6rem 0.8rem;border-bottom:1px solid var(--border)}
+    .product-table td{padding:0.7rem 0.8rem;border-bottom:1px solid rgba(42,42,42,0.5);vertical-align:middle;font-size:0.83rem}
+    .product-table tr:last-child td{border-bottom:none}
+    .table-img{width:48px;height:48px;object-fit:cover;border-radius:4px;border:1px solid var(--border)}
+    .td-actions{display:flex;gap:0.4rem}
+
+    /* BADGE PILLS */
+    .badge-pill{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.2rem 0.5rem;border-radius:2px}
+    .pill-hot{background:var(--orange);color:var(--black)}
+    .pill-new{background:var(--white);color:var(--black)}
+    .pill-limited{background:#7c3aed;color:#fff}
+    .pill-set{background:#0ea5e9;color:#fff}
+    .section-chip{background:var(--surface);border:1px solid var(--border);font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:2px;color:var(--muted)}
+
+    /* EMPTY STATE */
+    .empty-state{text-align:center;padding:3rem;color:var(--muted)}
+    .empty-icon{font-size:2.5rem;margin-bottom:0.8rem}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+    .modal-overlay.open{display:flex}
+    .modal-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:2rem;width:100%;max-width:460px;position:relative}
+    .modal-title{font-family:var(--font-display);font-size:1.4rem;margin-bottom:1.5rem}
+    .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
+    .modal-close:hover{color:var(--white)}
+    .modal-actions{display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end}
+
+    /* ADMIN TABLE */
+    .admin-table{width:100%;border-collapse:collapse}
+    .admin-table th{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);text-align:left;padding:0.6rem 0.8rem;border-bottom:1px solid var(--border)}
+    .admin-table td{padding:0.75rem 0.8rem;border-bottom:1px solid rgba(42,42,42,0.5);font-size:0.83rem}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface);border:1px solid var(--orange);color:var(--white);font-size:0.85rem;font-weight:500;padding:0.9rem 1.6rem;border-radius:4px;z-index:999;transition:transform 0.3s;white-space:nowrap}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+    .toast.error{border-color:var(--red)}
+    .toast.success{border-color:var(--green)}
+
+    /* FILTER BAR */
+    .filter-bar{display:flex;gap:0.6rem;margin-bottom:1.2rem;flex-wrap:wrap;align-items:center}
+    .filter-input{background:var(--surface);border:1px solid var(--border);color:var(--white);font-family:var(--font-body);font-size:0.82rem;padding:0.55rem 0.8rem;border-radius:4px;outline:none;transition:border-color 0.2s;width:200px}
+    .filter-input:focus{border-color:var(--orange)}
+    .filter-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);font-family:var(--font-body);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;padding:0.55rem 0.9rem;border-radius:4px;cursor:pointer;transition:all 0.2s}
+    .filter-btn:hover,.filter-btn.active{background:rgba(255,107,0,0.1);border-color:var(--orange);color:var(--orange)}
+
+    /* LOADING */
+    .loading{text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo"><span>BAZSI</span>SHOP</div>
+    <div class="login-sub">Admin Panel</div>
+    <div class="login-error" id="loginError">❌ Hibás felhasználónév vagy jelszó!</div>
+    <label class="login-label">Felhasználónév</label>
+    <input class="login-input" type="text" id="loginUser" placeholder="admin" autocomplete="username"/>
+    <label class="login-label">Jelszó</label>
+    <input class="login-input" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/>
+    <button class="login-btn" id="loginBtn">Belépés →</button>
+    <a href="index.html" class="back-link">← Vissza a webshopba</a>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div class="admin-shell" id="adminShell">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo"><span>BAZSI</span>SHOP <span style="font-size:0.75rem;font-family:var(--font-body);color:var(--muted);font-weight:400;margin-left:0.5rem">Admin Panel</span></div>
+    <div class="topbar-right">
+      <span class="topbar-user" id="topbarUser"></span>
+      <button class="logout-btn" id="logoutBtn">Kilépés</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="nav-item active" data-panel="dashboard"><span class="nav-icon">📊</span> Dashboard</div>
+      <div class="nav-item" data-panel="addProduct"><span class="nav-icon">➕</span> Termék hozzáadása</div>
+      <div class="nav-item" data-panel="products"><span class="nav-icon">📦</span> Termékek <span class="nav-badge" id="sidebarCount">0</span></div>
+      <div class="nav-item" data-panel="admins"><span class="nav-icon">👥</span> Adminok</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+      <!-- DASHBOARD -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Összes termék</div></div>
+          <div class="stat-card"><div class="stat-num" id="statSneakers">0</div><div class="stat-lbl">Sneakers</div></div>
+          <div class="stat-card"><div class="stat-num" id="statRuhazat">0</div><div class="stat-lbl">Ruházat</div></div>
+          <div class="stat-card"><div class="stat-num" id="statKieg">0</div><div class="stat-lbl">Kiegészítők</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">LEGUTÓBBI TERMÉKEK</div>
+          <div id="recentProducts"><div class="loading">Betöltés...</div></div>
+        </div>
+      </div>
+
+      <!-- ADD PRODUCT -->
+      <div class="panel" id="panel-addProduct">
+        <div class="card">
+          <div class="card-title">ÚJ TERMÉK</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Márka <span>*</span></label>
+              <input class="form-input" type="text" id="fp-brand" placeholder="pl. Nike, Adidas…"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Termék neve <span>*</span></label>
+              <input class="form-input" type="text" id="fp-name" placeholder="pl. Air Force 1 Low"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Resell ár (Ft) <span>*</span></label>
+              <input class="form-input" type="number" id="fp-price" placeholder="59990"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Retail ár (Ft)</label>
+              <input class="form-input" type="number" id="fp-retail" placeholder="34990"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kategória <span>*</span></label>
+              <select class="form-select" id="fp-category">
+                <option value="">Válassz…</option>
+                <option value="sneakers">Sneakers</option>
+                <option value="ruhazat">Ruházat</option>
+                <option value="orak">Órák</option>
+                <option value="kiegeszitok">Kiegészítők</option>
+                <option value="flash">Flash Sale</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Badge</label>
+              <select class="form-select" id="fp-badge">
+                <option value="">Nincs</option>
+                <option value="hot">🔥 HOT</option>
+                <option value="new">✨ ÚJ</option>
+                <option value="limited">🔒 LIMITED</option>
+                <option value="set">📦 SZETT</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Leírás</label>
+            <textarea class="form-textarea" id="fp-desc" placeholder="Rövid termékleírás…"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">TERMÉK KÉPEK <span style="color:var(--red);font-size:0.75rem">* legalább 1 kép szükséges</span></div>
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none"/>
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-area-icon">🖼️</div>
+            <div class="upload-area-text">Húzd ide a képeket, vagy kattints a gombra</div>
+            <button type="button" class="upload-area-btn" id="uploadBtn">📁 Képek kiválasztása</button>
+          </div>
+          <div class="img-preview-grid" id="imgPreviewGrid"></div>
+          <p style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem">Az első kép lesz a főkép a webshopban.</p>
+        </div>
+
+        <div style="display:flex;gap:1rem">
+          <button class="btn-primary" id="submitBtn">✅ Termék mentése</button>
+          <button class="btn-secondary" id="resetBtn">🔄 Visszaállítás</button>
+        </div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="panel" id="panel-products">
+        <div class="filter-bar">
+          <input class="filter-input" type="text" id="searchInput" placeholder="🔍 Keresés…"/>
+          <button class="filter-btn active" data-cat="">Mind</button>
+          <button class="filter-btn" data-cat="sneakers">Sneakers</button>
+          <button class="filter-btn" data-cat="ruhazat">Ruházat</button>
+          <button class="filter-btn" data-cat="orak">Órák</button>
+          <button class="filter-btn" data-cat="kiegeszitok">Kiegészítők</button>
+          <button class="filter-btn" data-cat="flash">Flash</button>
+          <button class="btn-danger" id="clearAllBtn" style="margin-left:auto">🗑️ Összes törlése</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div id="productTableWrap"><div class="loading">Betöltés...</div></div>
+        </div>
+      </div>
+
+      <!-- ADMINS -->
+      <div class="panel" id="panel-admins">
+        <div class="card">
+          <div class="card-title">ADMIN FIÓKOK</div>
+          <table class="admin-table">
+            <thead><tr><th>Felhasználónév</th><th>Szerepkör</th><th>Státusz</th><th>Művelet</th></tr></thead>
+            <tbody id="adminTableBody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">ÚJ ADMIN HOZZÁADÁSA</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Felhasználónév</label>
+              <input class="form-input" type="text" id="newAdminUser" placeholder="username"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jelszó (min. 6 karakter)</label>
+              <input class="form-input" type="password" id="newAdminPass" placeholder="••••••"/>
+            </div>
+          </div>
+          <button class="btn-primary" id="addAdminBtn">➕ Admin hozzáadása</button>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /admin-body -->
+</div><!-- /admin-shell -->
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <button class="modal-close" id="editModalClose">✕</button>
+    <div class="modal-title">TERMÉK SZERKESZTÉSE</div>
+    <input type="hidden" id="editDocId"/>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Márka</label><input class="form-input" type="text" id="edit-brand"/></div>
+      <div class="form-group"><label class="form-label">Termék neve</label><input class="form-input" type="text" id="edit-name"/></div>
+      <div class="form-group"><label class="form-label">Resell ár (Ft)</label><input class="form-input" type="number" id="edit-price"/></div>
+      <div class="form-group"><label class="form-label">Retail ár (Ft)</label><input class="form-input" type="number" id="edit-retail"/></div>
+      <div class="form-group">
+        <label class="form-label">Kategória</label>
+        <select class="form-select" id="edit-category">
+          <option value="sneakers">Sneakers</option>
+          <option value="ruhazat">Ruházat</option>
+          <option value="orak">Órák</option>
+          <option value="kiegeszitok">Kiegészítők</option>
+          <option value="flash">Flash Sale</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Badge</label>
+        <select class="form-select" id="edit-badge">
+          <option value="">Nincs</option>
+          <option value="hot">🔥 HOT</option>
+          <option value="new">✨ ÚJ</option>
+          <option value="limited">🔒 LIMITED</option>
+          <option value="set">📦 SZETT</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="editModalCancel">Mégse</button>
+      <button class="btn-primary" id="editModalSave">💾 Mentés</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box" style="max-width:380px">
+    <button class="modal-close" id="deleteModalClose">✕</button>
+    <div class="modal-title">TERMÉK TÖRLÉSE</div>
+    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.8rem">Biztosan törlöd ezt a terméket?</p>
+    <p style="font-weight:600" id="deleteProductName"></p>
+    <input type="hidden" id="deleteDocId"/>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="deleteModalCancel">Mégse</button>
+      <button class="btn-danger" id="deleteModalConfirm" style="padding:0.75rem 1.5rem">🗑️ Törlés</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ══════════════════════════════════════════
+//  FIREBASE INIT
+// ══════════════════════════════════════════
+firebase.initializeApp({
+  apiKey: "AIzaSyDnZrZ29HzbBY_KLQUf0z3KKWlNLGepxQo",
+  authDomain: "bazsishop-3e9de.firebaseapp.com",
+  projectId: "bazsishop-3e9de",
+  storageBucket: "bazsishop-3e9de.firebasestorage.app",
+  messagingSenderId: "253425959441",
+  appId: "1:253425959441:web:daf90a0dfca0c2ddae67b0"
+});
+const db = firebase.firestore();
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+let _tt;
+function showToast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════
+//  AUTH (localStorage)
+// ══════════════════════════════════════════
+const ADMINS_KEY = 'bazsi_admins';
+const SESSION_KEY = 'bazsi_session';
+
+function getAdmins(){
+  const s = localStorage.getItem(ADMINS_KEY);
+  if(s) return JSON.parse(s);
+  const defaults = [{user:'admin', pass:'admin123', role:'Superadmin'}];
+  localStorage.setItem(ADMINS_KEY, JSON.stringify(defaults));
+  return defaults;
+}
+
+function saveAdmins(arr){ localStorage.setItem(ADMINS_KEY, JSON.stringify(arr)); }
+
+// ══════════════════════════════════════════
+//  FIREBASE PRODUCT CRUD
+// ══════════════════════════════════════════
+async function getProducts(){
+  try {
+    const snap = await db.collection('products').orderBy('createdAt','desc').get();
+    return snap.docs.map(d => ({...d.data(), _id: d.id}));
+  } catch(e){
+    console.error(e);
+    showToast('❌ Firebase hiba: ' + e.message, 'error');
+    return [];
+  }
+}
+
+// ══════════════════════════════════════════
+//  IMAGES
+// ══════════════════════════════════════════
+let pendingImages = [];
+
+function setupUpload(){
+  const fileInput = document.getElementById('fileInput');
+  const uploadArea = document.getElementById('uploadArea');
+  const uploadBtn = document.getElementById('uploadBtn');
+
+  uploadBtn.onclick = () => fileInput.click();
+
+  fileInput.onchange = () => {
+    Array.from(fileInput.files).forEach(readFile);
+    fileInput.value = '';
+  };
+
+  uploadArea.ondragover = (e) => { e.preventDefault(); uploadArea.classList.add('drag'); };
+  uploadArea.ondragleave = () => uploadArea.classList.remove('drag');
+  uploadArea.ondrop = (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag');
+    Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(readFile);
+  };
+}
+
+function readFile(file){
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    pendingImages.push({ dataUrl: e.target.result, name: file.name });
+    renderPreviews();
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderPreviews(){
+  const grid = document.getElementById('imgPreviewGrid');
+  if(!pendingImages.length){ grid.innerHTML = ''; return; }
+  grid.innerHTML = pendingImages.map((img, i) => `
+    <div class="img-thumb">
+      <img src="${img.dataUrl}" alt="${img.name}"/>
+      ${i === 0 ? '<span class="img-thumb-main">Főkép</span>' : ''}
+      <button class="img-thumb-remove" onclick="removeImage(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeImage(i){
+  pendingImages.splice(i, 1);
+  renderPreviews();
+}
+
+// ══════════════════════════════════════════
+//  SUBMIT PRODUCT
+// ══════════════════════════════════════════
+async function submitProduct(){
+  const brand = document.getElementById('fp-brand').value.trim();
+  const name  = document.getElementById('fp-name').value.trim();
+  const price = parseInt(document.getElementById('fp-price').value) || 0;
+  const retail= parseInt(document.getElementById('fp-retail').value) || 0;
+  const cat   = document.getElementById('fp-category').value;
+  const badge = document.getElementById('fp-badge').value;
+  const desc  = document.getElementById('fp-desc').value.trim();
+
+  if(!brand || !name || !price || !cat){
+    showToast('❌ Töltsd ki a kötelező mezőket!', 'error'); return;
+  }
+  if(!pendingImages.length){
+    showToast('❌ Tölts fel legalább egy képet!', 'error'); return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Mentés...';
+
+  try {
+    await db.collection('products').add({
+      brand, name, price, retail, cat, badge, desc,
+      img: pendingImages[0].dataUrl,
+      images: pendingImages.map(i => i.dataUrl),
+      createdAt: new Date().toISOString()
+    });
+    showToast('✅ Termék sikeresen mentve!', 'success');
+    resetForm();
+    switchPanel('products');
+    renderProductTable();
+    renderDashboard();
+  } catch(e){
+    showToast('❌ Hiba: ' + e.message, 'error');
+  }
+
+  btn.disabled = false; btn.textContent = '✅ Termék mentése';
+}
+
+function resetForm(){
+  ['fp-brand','fp-name','fp-price','fp-retail','fp-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fp-category').value = '';
+  document.getElementById('fp-badge').value = '';
+  pendingImages = [];
+  renderPreviews();
+}
+
+// ══════════════════════════════════════════
+//  RENDER PRODUCT TABLE
+// ══════════════════════════════════════════
+let _filterQuery = '', _filterCat = '';
+
+async function renderProductTable(){
+  const wrap = document.getElementById('productTableWrap');
+  wrap.innerHTML = '<div class="loading">⏳ Betöltés...</div>';
+
+  const products = await getProducts();
+  const filtered = products.filter(p => {
+    const q = _filterQuery.toLowerCase();
+    const mQ = !q || p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+    const mC = !_filterCat || p.cat === _filterCat;
+    return mQ && mC;
+  });
+
+  document.getElementById('sidebarCount').textContent = products.length;
+
+  if(!filtered.length){
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div>Nincs termék</div></div>';
+    return;
+  }
+
+  const catLabel = {sneakers:'Sneakers',ruhazat:'Ruházat',orak:'Órák',kiegeszitok:'Kiegészítők',flash:'Flash Sale'};
+  const bMap = {hot:'pill-hot',new:'pill-new',limited:'pill-limited',set:'pill-set'};
+  const bLbl = {hot:'🔥 HOT',new:'✨ ÚJ',limited:'🔒 LIMITED',set:'📦 SZETT'};
+
+  wrap.innerHTML = `<table class="product-table">
+    <thead><tr><th>Kép</th><th>Termék</th><th>Kategória</th><th>Ár</th><th>Badge</th><th>Műveletek</th></tr></thead>
+    <tbody>${filtered.map(p => `
+      <tr>
+        <td><img class="table-img" src="${p.img}" alt="${p.name}"/></td>
+        <td>
+          <div style="font-weight:600">${p.name}</div>
+          <div style="font-size:0.72rem;color:var(--muted)">${p.brand}</div>
+        </td>
+        <td><span class="section-chip">${catLabel[p.cat] || p.cat}</span></td>
+        <td>
+          <div style="font-family:var(--font-display);color:var(--orange);font-size:1.1rem">${(p.price||0).toLocaleString('hu-HU')} Ft</div>
+          ${p.retail ? `<div style="font-size:0.7rem;color:var(--muted)">Retail: ${p.retail.toLocaleString('hu-HU')} Ft</div>` : ''}
+        </td>
+        <td>${p.badge ? `<span class="badge-pill ${bMap[p.badge]}">${bLbl[p.badge]}</span>` : '–'}</td>
+        <td><div class="td-actions">
+          <button class="btn-edit" onclick="openEdit('${p._id}')">✏️ Szerk.</button>
+          <button class="btn-danger" onclick="openDelete('${p._id}','${p.name.replace(/'/g,"\\'")}')">🗑️</button>
+        </div></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+async function renderDashboard(){
+  const products = await getProducts();
+  document.getElementById('statTotal').textContent = products.length;
+  document.getElementById('statSneakers').textContent = products.filter(p=>p.cat==='sneakers').length;
+  document.getElementById('statRuhazat').textContent = products.filter(p=>p.cat==='ruhazat').length;
+  document.getElementById('statKieg').textContent = products.filter(p=>p.cat==='kiegeszitok').length;
+  document.getElementById('sidebarCount').textContent = products.length;
+
+  const recent = products.slice(0,5);
+  const wrap = document.getElementById('recentProducts');
+  if(!recent.length){
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><div>Még nincs termék</div></div>';
+    return;
+  }
+  wrap.innerHTML = `<table class="product-table">
+    <thead><tr><th>Kép</th><th>Termék</th><th>Ár</th><th>Kat.</th></tr></thead>
+    <tbody>${recent.map(p=>`<tr>
+      <td><img class="table-img" src="${p.img}"/></td>
+      <td><div style="font-weight:600;font-size:0.85rem">${p.name}</div><div style="font-size:0.72rem;color:var(--muted)">${p.brand}</div></td>
+      <td><span style="font-family:var(--font-display);color:var(--orange)">${(p.price||0).toLocaleString('hu-HU')} Ft</span></td>
+      <td><span class="section-chip">${p.cat}</span></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+// ══════════════════════════════════════════
+//  EDIT MODAL
+// ══════════════════════════════════════════
+function openEdit(docId){
+  getProducts().then(products => {
+    const p = products.find(x => x._id === docId);
+    if(!p) return;
+    document.getElementById('editDocId').value = docId;
+    document.getElementById('edit-brand').value = p.brand || '';
+    document.getElementById('edit-name').value = p.name || '';
+    document.getElementById('edit-price').value = p.price || '';
+    document.getElementById('edit-retail').value = p.retail || '';
+    document.getElementById('edit-category').value = p.cat || '';
+    document.getElementById('edit-badge').value = p.badge || '';
+    document.getElementById('editModal').classList.add('open');
+  });
+}
+
+document.getElementById('editModalClose').onclick = () => document.getElementById('editModal').classList.remove('open');
+document.getElementById('editModalCancel').onclick = () => document.getElementById('editModal').classList.remove('open');
+document.getElementById('editModalSave').onclick = async () => {
+  const docId = document.getElementById('editDocId').value;
+  const btn = document.getElementById('editModalSave');
+  btn.disabled = true; btn.textContent = 'Mentés...';
+  try {
+    await db.collection('products').doc(docId).update({
+      brand:  document.getElementById('edit-brand').value.trim(),
+      name:   document.getElementById('edit-name').value.trim(),
+      price:  parseInt(document.getElementById('edit-price').value) || 0,
+      retail: parseInt(document.getElementById('edit-retail').value) || 0,
+      cat:    document.getElementById('edit-category').value,
+      badge:  document.getElementById('edit-badge').value,
+    });
+    document.getElementById('editModal').classList.remove('open');
+    showToast('✅ Termék frissítve!', 'success');
+    renderProductTable();
+    renderDashboard();
+  } catch(e){ showToast('❌ Hiba: ' + e.message, 'error'); }
+  btn.disabled = false; btn.textContent = '💾 Mentés';
+};
+
+// ══════════════════════════════════════════
+//  DELETE MODAL
+// ══════════════════════════════════════════
+function openDelete(docId, name){
+  document.getElementById('deleteDocId').value = docId;
+  document.getElementById('deleteProductName').textContent = name;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+document.getElementById('deleteModalClose').onclick = () => document.getElementById('deleteModal').classList.remove('open');
+document.getElementById('deleteModalCancel').onclick = () => document.getElementById('deleteModal').classList.remove('open');
+document.getElementById('deleteModalConfirm').onclick = async () => {
+  const docId = document.getElementById('deleteDocId').value;
+  try {
+    await db.collection('products').doc(docId).delete();
+    document.getElementById('deleteModal').classList.remove('open');
+    showToast('🗑️ Termék törölve!');
+    renderProductTable();
+    renderDashboard();
+  } catch(e){ showToast('❌ Hiba: ' + e.message, 'error'); }
+};
+
+document.getElementById('clearAllBtn').onclick = async () => {
+  if(!confirm('Biztosan törlöd az összes terméket?')) return;
+  const products = await getProducts();
+  const batch = db.batch();
+  products.forEach(p => batch.delete(db.collection('products').doc(p._id)));
+  await batch.commit();
+  showToast('🗑️ Összes termék törölve!');
+  renderProductTable();
+  renderDashboard();
+};
+
+// ══════════════════════════════════════════
+//  ADMINS PANEL
+// ══════════════════════════════════════════
+function renderAdminTable(){
+  const admins = getAdmins();
+  document.getElementById('adminTableBody').innerHTML = admins.map((a,i) => `
+    <tr>
+      <td style="font-weight:600">${a.user}</td>
+      <td><span class="badge-pill pill-hot">${a.role}</span></td>
+      <td><span style="color:var(--green);font-size:0.8rem">● Aktív</span></td>
+      <td>${i > 0 ? `<button class="btn-danger" onclick="deleteAdmin(${i})">🗑️ Törlés</button>` : '<span style="color:var(--muted);font-size:0.78rem">Védett</span>'}</td>
+    </tr>`).join('');
+}
+
+function deleteAdmin(i){
+  const admins = getAdmins();
+  admins.splice(i,1);
+  saveAdmins(admins);
+  renderAdminTable();
+  showToast('🗑️ Admin törölve!');
+}
+
+document.getElementById('addAdminBtn').onclick = () => {
+  const u = document.getElementById('newAdminUser').value.trim();
+  const p = document.getElementById('newAdminPass').value;
+  if(!u || p.length < 6){ showToast('❌ Felhasználónév és min. 6 karakter jelszó szükséges!', 'error'); return; }
+  const admins = getAdmins();
+  if(admins.find(a => a.user === u)){ showToast('❌ Ez a felhasználónév már létezik!', 'error'); return; }
+  admins.push({user:u, pass:p, role:'Admin'});
+  saveAdmins(admins);
+  document.getElementById('newAdminUser').value = '';
+  document.getElementById('newAdminPass').value = '';
+  renderAdminTable();
+  showToast('✅ Admin hozzáadva!', 'success');
+};
+
+// ══════════════════════════════════════════
+//  PANEL SWITCHING
+// ══════════════════════════════════════════
+function switchPanel(id){
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelector(`.nav-item[data-panel="${id}"]`).classList.add('active');
+  if(id === 'products') renderProductTable();
+  if(id === 'dashboard') renderDashboard();
+  if(id === 'admins') renderAdminTable();
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.onclick = () => switchPanel(item.dataset.panel);
+});
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _filterCat = btn.dataset.cat;
+    renderProductTable();
+  };
+});
+
+document.getElementById('searchInput').oninput = (e) => {
+  _filterQuery = e.target.value;
+  renderProductTable();
+};
+
+document.getElementById('submitBtn').onclick = submitProduct;
+document.getElementById('resetBtn').onclick = resetForm;
+
+// ══════════════════════════════════════════
+//  LOGIN / LOGOUT
+// ══════════════════════════════════════════
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const found = getAdmins().find(a => a.user === u && a.pass === p);
+  if(found){
+    localStorage.setItem(SESSION_KEY, JSON.stringify({user:found.user, role:found.role}));
+    initAdmin(found);
+  } else {
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('loginPass').value = '';
+  }
+}
+
+function initAdmin(user){
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('adminShell').classList.add('active');
+  document.getElementById('topbarUser').textContent = user.user + ' (' + user.role + ')';
+  renderDashboard();
+  renderProductTable();
+  setupUpload();
+}
+
+document.getElementById('loginBtn').onclick = doLogin;
+document.getElementById('loginPass').onkeydown = e => { if(e.key==='Enter') doLogin(); };
+document.getElementById('loginUser').onkeydown = e => { if(e.key==='Enter') doLogin(); };
+
+document.getElementById('logoutBtn').onclick = () => {
+  localStorage.removeItem(SESSION_KEY);
+  document.getElementById('adminShell').classList.remove('active');
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').classList.remove('show');
+};
+
+// Auto-login
+(function(){
+  const s = localStorage.getItem(SESSION_KEY);
+  if(!s){ return; }
+  try {
+    const user = JSON.parse(s);
+    const valid = getAdmins().find(a => a.user === user.user);
+    if(valid){ initAdmin(valid); }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>
